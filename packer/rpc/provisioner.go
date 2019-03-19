@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"log"
 	"net/rpc"
 
@@ -34,7 +35,7 @@ func (p *provisioner) Prepare(configs ...interface{}) (err error) {
 	return
 }
 
-func (p *provisioner) Provision(ui packer.Ui, comm packer.Communicator) error {
+func (p *provisioner) Provision(ctx context.Context, ui packer.Ui, comm packer.Communicator) error {
 	nextId := p.mux.NextId()
 	server := newServerWithMux(p.mux, nextId)
 	server.RegisterCommunicator(comm)
@@ -55,14 +56,14 @@ func (p *ProvisionerServer) Prepare(args *ProvisionerPrepareArgs, reply *interfa
 	return p.p.Prepare(args.Configs...)
 }
 
-func (p *ProvisionerServer) Provision(streamId uint32, reply *interface{}) error {
+func (p *ProvisionerServer) Provision(ctx context.Context, streamId uint32, reply *interface{}) error {
 	client, err := newClientWithMux(p.mux, streamId)
 	if err != nil {
 		return NewBasicError(err)
 	}
 	defer client.Close()
 
-	if err := p.p.Provision(client.Ui(), client.Communicator()); err != nil {
+	if err := p.p.Provision(ctx, client.Ui(), client.Communicator()); err != nil {
 		return NewBasicError(err)
 	}
 

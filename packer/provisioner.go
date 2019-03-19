@@ -66,6 +66,8 @@ func (h *ProvisionHook) Run(name string, ui Ui, comm Communicator, data interfac
 		h.runningProvisioner = nil
 	}()
 
+	ctx := context.Background()
+
 	for _, p := range h.Provisioners {
 		h.lock.Lock()
 		h.runningProvisioner = p.Provisioner
@@ -73,7 +75,7 @@ func (h *ProvisionHook) Run(name string, ui Ui, comm Communicator, data interfac
 
 		ts := CheckpointReporter.AddSpan(p.TypeName, "provisioner", p.Config)
 
-		err := p.Provisioner.Provision(ui, comm)
+		err := p.Provisioner.Provision(ctx, ui, comm)
 
 		ts.End(err)
 		if err != nil {
@@ -109,7 +111,7 @@ func (p *PausedProvisioner) Prepare(raws ...interface{}) error {
 	return p.Provisioner.Prepare(raws...)
 }
 
-func (p *PausedProvisioner) Provision(ui Ui, comm Communicator) error {
+func (p *PausedProvisioner) Provision(ctx context.Context, ui Ui, comm Communicator) error {
 	p.lock.Lock()
 	cancelCh := make(chan struct{})
 	p.cancelCh = cancelCh
@@ -140,7 +142,7 @@ func (p *PausedProvisioner) Provision(ui Ui, comm Communicator) error {
 	}
 
 	provDoneCh := make(chan error, 1)
-	go p.provision(provDoneCh, ui, comm)
+	go p.provision(ctx, provDoneCh, ui, comm)
 
 	select {
 	case err := <-provDoneCh:
@@ -167,8 +169,8 @@ func (p *PausedProvisioner) Cancel() {
 	<-doneCh
 }
 
-func (p *PausedProvisioner) provision(result chan<- error, ui Ui, comm Communicator) {
-	result <- p.Provisioner.Provision(ui, comm)
+func (p *PausedProvisioner) provision(ctx context.Context, result chan<- error, ui Ui, comm Communicator) {
+	result <- p.Provisioner.Provision(ctx, ui, comm)
 }
 
 // DebuggedProvisioner is a Provisioner implementation that waits until a key
@@ -185,7 +187,7 @@ func (p *DebuggedProvisioner) Prepare(raws ...interface{}) error {
 	return p.Provisioner.Prepare(raws...)
 }
 
-func (p *DebuggedProvisioner) Provision(ui Ui, comm Communicator) error {
+func (p *DebuggedProvisioner) Provision(ctx context.Context, ui Ui, comm Communicator) error {
 	p.lock.Lock()
 	cancelCh := make(chan struct{})
 	p.cancelCh = cancelCh
@@ -227,7 +229,7 @@ func (p *DebuggedProvisioner) Provision(ui Ui, comm Communicator) error {
 	}
 
 	provDoneCh := make(chan error, 1)
-	go p.provision(provDoneCh, ui, comm)
+	go p.provision(ctx, provDoneCh, ui, comm)
 
 	select {
 	case err := <-provDoneCh:
@@ -254,6 +256,6 @@ func (p *DebuggedProvisioner) Cancel() {
 	<-doneCh
 }
 
-func (p *DebuggedProvisioner) provision(result chan<- error, ui Ui, comm Communicator) {
-	result <- p.Provisioner.Provision(ui, comm)
+func (p *DebuggedProvisioner) provision(ctx context.Context, result chan<- error, ui Ui, comm Communicator) {
+	result <- p.Provisioner.Provision(ctx, ui, comm)
 }

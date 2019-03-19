@@ -4,6 +4,7 @@ package saltmasterless
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -219,7 +220,7 @@ func (p *Provisioner) Prepare(raws ...interface{}) error {
 	return nil
 }
 
-func (p *Provisioner) Provision(ui packer.Ui, comm packer.Communicator) error {
+func (p *Provisioner) Provision(ctx context.Context, ui packer.Ui, comm packer.Communicator) error {
 	var err error
 	var src, dst string
 
