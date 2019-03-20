@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -32,7 +33,9 @@ func TestProvisionerRPC(t *testing.T) {
 	// Test Provision
 	ui := &testUi{}
 	comm := &packer.MockCommunicator{}
-	pClient.Provision(ui, comm)
+	if err := pClient.Provision(context.Background(), ui, comm); err != nil {
+		t.Fatalf("err: %v", err)
+	}
 	if !p.ProvCalled {
 		t.Fatal("should be called")
 	}

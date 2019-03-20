@@ -56,7 +56,7 @@ func (p *ProvisionerServer) Prepare(args *ProvisionerPrepareArgs, reply *interfa
 	return p.p.Prepare(args.Configs...)
 }
 
-func (p *ProvisionerServer) Provision(ctx context.Context, streamId uint32, reply *interface{}) error {
+func (p *ProvisionerServer) Provision(streamId uint32, reply *interface{}) error {
 	client, err := newClientWithMux(p.mux, streamId)
 	if err != nil {
 		return NewBasicError(err)
