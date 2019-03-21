@@ -318,12 +318,6 @@ func (p *Provisioner) Provision(ctx context.Context, ui packer.Ui, comm packer.C
 	return nil
 }
 
-func (p *Provisioner) Cancel() {
-	// Just hard quit. It isn't a big deal if what we're doing keeps
-	// running on the other side.
-	os.Exit(0)
-}
-
 func (p *Provisioner) createDir(ui packer.Ui, comm packer.Communicator, dir string) error {
 	ui.Message(fmt.Sprintf("Creating directory: %s", dir))
 

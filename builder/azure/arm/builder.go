@@ -51,11 +51,11 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 	return warnings, errs
 }
 
-func (b *Builder) Run(ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
+func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 
 	ui.Say("Running builder ...")
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	b.ctxCancel = cancel
 	defer cancel()
 
@@ -259,7 +259,7 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	}
 
 	b.runner = packerCommon.NewRunner(steps, b.config.PackerConfig, ui)
-	b.runner.Run(b.stateBag)
+	b.runner.Run(ctx, b.stateBag)
 
 	// Report any errors.
 	if rawErr, ok := b.stateBag.GetOk(constants.Error); ok {
@@ -322,17 +322,6 @@ func (b *Builder) isPublicPrivateNetworkCommunication() bool {
 
 func (b *Builder) isPrivateNetworkCommunication() bool {
 	return b.config.VirtualNetworkName != ""
-}
-
-func (b *Builder) Cancel() {
-	if b.ctxCancel != nil {
-		log.Printf("Cancelling Azure builder...")
-		b.ctxCancel()
-	}
-	if b.runner != nil {
-		log.Println("Cancelling the step runner...")
-		b.runner.Cancel()
-	}
 }
 
 func equalLocation(location1, location2 string) bool {

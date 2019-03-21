@@ -300,12 +300,6 @@ func (p *Provisioner) Provision(ctx context.Context, ui packer.Ui, comm packer.C
 	return nil
 }
 
-func (p *Provisioner) Cancel() {
-	// Just hard quit. It isn't a big deal if what we're doing keeps
-	// running on the other side.
-	os.Exit(0)
-}
-
 func (p *Provisioner) uploadDirectory(ui packer.Ui, comm packer.Communicator, dst string, src string) error {
 	if err := p.createDir(ui, comm, dst); err != nil {
 		return err

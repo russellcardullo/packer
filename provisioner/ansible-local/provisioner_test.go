@@ -375,7 +375,7 @@ func testProvisionerProvisionDockerWithPlaybookFiles(t *testing.T, templateStrin
 	}
 	hook := &packer.DispatchHook{Mapping: hooks}
 
-	artifact, err := builder.Run(ui, hook)
+	artifact, err := builder.Run(context.Background(), ui, hook)
 	if err != nil {
 		t.Fatalf("Error running build %s", err)
 	}

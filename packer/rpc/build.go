@@ -112,7 +112,7 @@ func (b *BuildServer) Run(streamId uint32, reply *[]uint32) error {
 	}
 	defer client.Close()
 
-	artifacts, err := b.build.Run(client.Ui())
+	artifacts, err := b.build.Run(client.ctx, client.Ui())
 	if err != nil {
 		return NewBasicError(err)
 	}
@@ -146,6 +146,6 @@ func (b *BuildServer) SetOnError(val *string, reply *interface{}) error {
 }
 
 func (b *BuildServer) Cancel(args *interface{}, reply *interface{}) error {
-	b.build.Cancel()
+	panic("cancel !")
 	return nil
 }

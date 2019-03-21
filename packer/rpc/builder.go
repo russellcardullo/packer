@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"log"
 	"net/rpc"
 
@@ -44,7 +45,7 @@ func (b *builder) Prepare(config ...interface{}) ([]string, error) {
 	return resp.Warnings, err
 }
 
-func (b *builder) Run(ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
+func (b *builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	nextId := b.mux.NextId()
 	server := newServerWithMux(b.mux, nextId)
 	server.RegisterHook(hook)
@@ -90,7 +91,7 @@ func (b *BuilderServer) Run(streamId uint32, reply *uint32) error {
 	}
 	defer client.Close()
 
-	artifact, err := b.builder.Run(client.Ui(), client.Hook())
+	artifact, err := b.builder.Run(ctx, client.Ui(), client.Hook())
 	if err != nil {
 		return NewBasicError(err)
 	}
@@ -108,6 +109,6 @@ func (b *BuilderServer) Run(streamId uint32, reply *uint32) error {
 }
 
 func (b *BuilderServer) Cancel(args *interface{}, reply *interface{}) error {
-	b.builder.Cancel()
+	panic("toto")
 	return nil
 }

@@ -231,12 +231,6 @@ func (p *Provisioner) Provision(ctx context.Context, ui packer.Ui, comm packer.C
 	return nil
 }
 
-func (p *Provisioner) Cancel() {
-	// Just hard quit. It isn't a big deal if what we're doing keeps
-	// running on the other side.
-	os.Exit(0)
-}
-
 // retryable will retry the given function over and over until a
 // non-error is returned.
 func (p *Provisioner) retryable(f func() error) error {

@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"context"
-	"log"
 	"net/rpc"
 
 	"github.com/hashicorp/packer/packer"
@@ -45,18 +44,11 @@ func (p *provisioner) Provision(ctx context.Context, ui packer.Ui, comm packer.C
 	return p.client.Call("Provisioner.Provision", nextId, new(interface{}))
 }
 
-func (p *provisioner) Cancel() {
-	err := p.client.Call("Provisioner.Cancel", new(interface{}), new(interface{}))
-	if err != nil {
-		log.Printf("Provisioner.Cancel err: %s", err)
-	}
-}
-
-func (p *ProvisionerServer) Prepare(args *ProvisionerPrepareArgs, reply *interface{}) error {
+func (p *ProvisionerServer) Prepare(_ context.Context, args *ProvisionerPrepareArgs, reply *interface{}) error {
 	return p.p.Prepare(args.Configs...)
 }
 
-func (p *ProvisionerServer) Provision(streamId uint32, reply *interface{}) error {
+func (p *ProvisionerServer) Provision(ctx context.Context, streamId uint32, reply *interface{}) error {
 	client, err := newClientWithMux(p.mux, streamId)
 	if err != nil {
 		return NewBasicError(err)
@@ -67,10 +59,5 @@ func (p *ProvisionerServer) Provision(streamId uint32, reply *interface{}) error
 		return NewBasicError(err)
 	}
 
-	return nil
-}
-
-func (p *ProvisionerServer) Cancel(args *interface{}, reply *interface{}) error {
-	p.p.Cancel()
 	return nil
 }
